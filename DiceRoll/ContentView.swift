@@ -12,7 +12,7 @@ struct ContentView: View {
     @State private var diceAmount = 1
     @State private var diceSides = 4
     @State private var result = 0
-    @State private var individualRools: [Int] = []
+    @State private var individualRolls: [Int] = []
 
     var body: some View {
         VStack {
@@ -27,14 +27,22 @@ struct ContentView: View {
             }
             .padding()
 
-            Text("Your result is \(result)")
-            if !individualRools.isEmpty {
-                Text("Rolls: \(individualRools.map { String($0) }.joined(separator: ", "))")
+            VStack() {
+                Text("Your result is: \(result)")
+                if !individualRolls.isEmpty {
+                    Text("Rolls: \(individualRolls.map { String($0) }.joined(separator: ", "))")
+                } else {
+                    Text("")
+                }
             }
 
-            Button("Roll the dice") {
+
+            Button("Tap to Roll!") {
                 diceRoll(sides: diceSides, dices: diceAmount)
             }
+            .buttonStyle(.borderedProminent)
+            .font(.title)
+            .padding()
         }
     }
 
@@ -50,7 +58,7 @@ struct ContentView: View {
             total += roll
         }
         result = total
-        individualRools = rolls
+        individualRolls = rolls
 
         impact.impactOccurred()
     }
