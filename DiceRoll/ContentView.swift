@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct ContentView: View {
     @State private var diceAmount = 1
@@ -38,15 +39,20 @@ struct ContentView: View {
     }
 
     func diceRoll(sides: Int, dices: Int) {
+        let impact = UIImpactFeedbackGenerator(style: .medium)
+        impact.prepare()
+
         var total = 0
         var rolls: [Int] = []
-        for dice in 1...dices {
+        for _ in 1...dices {
             let roll = Int.random(in: 1...sides)
             rolls.append(roll)
             total += roll
         }
         result = total
         individualRools = rolls
+
+        impact.impactOccurred()
     }
 }
 
