@@ -9,8 +9,9 @@ import SwiftUI
 import UIKit
 
 struct ContentView: View {
+    let diceType = [4, 6, 8, 10, 12, 20, 40, 100]
+    @State private var selectedDiceType = 4
     @State private var diceAmount = 1
-    @State private var diceSides = 4
     @State private var result = 0
     @State private var individualRolls: [Int] = []
 
@@ -20,7 +21,13 @@ struct ContentView: View {
         NavigationStack {
             VStack {
                 VStack(spacing: 10) {
-                    Stepper("Number of dice sides: \(diceSides)", value: $diceSides, in: 4...Int.max)
+                    Picker("Choose a dice type", selection: $selectedDiceType) {
+                        ForEach(diceType, id: \.self) { dice in
+                            Text(dice.description)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    Text("You selected \(selectedDiceType) dice type")
                 }
                 .padding()
 
@@ -40,7 +47,7 @@ struct ContentView: View {
                 }
 
                 Button("Tap to Roll!", systemImage: "dice.fill") {
-                    diceRoll(sides: diceSides, dices: diceAmount)
+                    diceRoll(sides: selectedDiceType, dices: diceAmount)
                 }
                 .buttonStyle(.borderedProminent)
                 .font(.title)
