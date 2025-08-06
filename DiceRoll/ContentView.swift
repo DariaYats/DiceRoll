@@ -14,35 +14,42 @@ struct ContentView: View {
     @State private var result = 0
     @State private var individualRolls: [Int] = []
 
+    @Environment(\.modelContext) var modelContext
+
     var body: some View {
-        VStack {
-            VStack(spacing: 10) {
-                Stepper("Number of dice sides: \(diceSides)", value: $diceSides, in: 4...Int.max)
-            }
-            .padding()
+        NavigationStack {
+            VStack {
+                VStack(spacing: 10) {
+                    Stepper("Number of dice sides: \(diceSides)", value: $diceSides, in: 4...Int.max)
+                }
+                .padding()
 
 
-            VStack(spacing: 10) {
-                Stepper("Number of dices: \(diceAmount)", value: $diceAmount, in: 1...Int.max)
-            }
-            .padding()
+                VStack(spacing: 10) {
+                    Stepper("Number of dices: \(diceAmount)", value: $diceAmount, in: 1...Int.max)
+                }
+                .padding()
 
-            VStack() {
-                Text("Your result is: \(result)")
-                if !individualRolls.isEmpty {
-                    Text("Rolls: \(individualRolls.map { String($0) }.joined(separator: ", "))")
-                } else {
-                    Text("")
+                VStack() {
+                    Text("Your result is: \(result)")
+                    if !individualRolls.isEmpty {
+                        Text("Rolls: \(individualRolls.map { String($0) }.joined(separator: ", "))")
+                    } else {
+                        Text("")
+                    }
+                }
+
+                Button("Tap to Roll!", systemImage: "dice.fill") {
+                    diceRoll(sides: diceSides, dices: diceAmount)
+                }
+                .buttonStyle(.borderedProminent)
+                .font(.title)
+                .padding()
+
+                NavigationLink(destination: RollsHistoryView()) {
+                    Text("View Roll History")
                 }
             }
-
-
-            Button("Tap to Roll!") {
-                diceRoll(sides: diceSides, dices: diceAmount)
-            }
-            .buttonStyle(.borderedProminent)
-            .font(.title)
-            .padding()
         }
     }
 
@@ -59,6 +66,10 @@ struct ContentView: View {
         }
         result = total
         individualRolls = rolls
+
+        let newRoll = DiceRoll(diceAmount: dices, diceSides: sides, total: total, individualRolls: rolls)
+        modelContext.insert(newRoll)
+        try? modelContext.save()
 
         impact.impactOccurred()
     }
