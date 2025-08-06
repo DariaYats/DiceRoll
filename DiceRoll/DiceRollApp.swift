@@ -4,7 +4,7 @@
 //
 //  Created by Daria Yatsyniuk on 30.07.2025.
 //
-
+import SwiftData
 import SwiftUI
 
 @main
@@ -13,5 +13,6 @@ struct DiceRollApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: DiceRoll.self)
     }
 }
