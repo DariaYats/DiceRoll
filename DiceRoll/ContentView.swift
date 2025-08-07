@@ -14,47 +14,110 @@ struct ContentView: View {
     @State private var diceAmount = 1
     @State private var result = 0
     @State private var individualRolls: [Int] = []
+    @State private var isRolling = false
 
     @Environment(\.modelContext) var modelContext
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         NavigationStack {
-            VStack {
-                VStack(spacing: 10) {
-                    Picker("Choose a dice type", selection: $selectedDiceType) {
-                        ForEach(diceType, id: \.self) { dice in
-                            Text(dice.description)
+            ZStack {
+                LinearGradient(
+                    colors: [.purple.opacity(0.3), .blue.opacity(0.2), .white],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+
+                VStack(spacing: 24) {
+                    VStack(spacing: 12) {
+                        Text("Select Dice Type")
+                            .font(.title3.bold())
+                            .foregroundStyle(.primary)
+
+                        Picker("Choose a dice type", selection: $selectedDiceType) {
+                            ForEach(diceType, id: \.self) { dice in
+                                Text(dice.description)
+                                    .tag(dice)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .accessibilityHint("Select the number of sides for the dice.")
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(colorScheme == .dark ? Color(.systemGray6) : .white)
+                            .shadow(radius: 4)
+                    )
+                    .padding(.horizontal)
+
+
+                    VStack(spacing: 12) {
+                        Text("Number of Dice")
+                            .font(.title3.bold())
+                            .foregroundStyle(.primary)
+                        Stepper("Dice: \(diceAmount)", value: $diceAmount, in: 1...100)
+                            .accessibilityHint("Adjust the number of dice to roll.")
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(colorScheme == .dark ? Color(.systemGray6) : .white)
+                            .shadow(radius: 4)
+                    )
+                    .padding(.horizontal)
+
+
+                    VStack(spacing: 12) {
+                        Text("Total: \(result)")
+                            .font(.largeTitle.bold())
+                            .foregroundStyle(.primary)
+                            .scaleEffect(isRolling ? 1.1 : 1.0)
+                            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isRolling)
+                            .accessibilityLabel("Total result: \(result)")
+
+                        if !individualRolls.isEmpty {
+                            Text("Rolls: \(individualRolls.map { String($0) }.joined(separator: ", "))")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .opacity(isRolling ? 0.7 : 1.0)
+                                .animation(.easeInOut(duration: 0.3), value: isRolling)
+                                .accessibilityLabel("Individual rolls: \(individualRolls.map { String($0) }.joined(separator: ", "))")
                         }
                     }
-                    .pickerStyle(.segmented)
-                    Text("You selected \(selectedDiceType) dice type")
-                }
-                .padding()
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(colorScheme == .dark ? Color(.systemGray6) : .white)
+                            .shadow(radius: 4)
+                    )
+                    .padding(.horizontal)
 
-
-                VStack(spacing: 10) {
-                    Stepper("Number of dices: \(diceAmount)", value: $diceAmount, in: 1...Int.max)
-                }
-                .padding()
-
-                VStack() {
-                    Text("Your result is: \(result)")
-                    if !individualRolls.isEmpty {
-                        Text("Rolls: \(individualRolls.map { String($0) }.joined(separator: ", "))")
-                    } else {
-                        Text("")
+                    Button("Tap to Roll!", systemImage: "dice.fill") {
+                        withAnimation {
+                            isRolling = true
+                        }
+                        diceRoll(sides: selectedDiceType, dices: diceAmount)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            withAnimation{
+                                isRolling = false
+                            }
+                        }
                     }
-                }
+                    .font(.title2.weight(.semibold))
+                    .padding()
+                    .frame(maxWidth: 320)
+                    .background(.blue)
+                    .foregroundStyle(.white)
+                    .clipShape(Capsule())
+                    .scaleEffect(isRolling ? 0.95 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isRolling)
 
-                Button("Tap to Roll!", systemImage: "dice.fill") {
-                    diceRoll(sides: selectedDiceType, dices: diceAmount)
-                }
-                .buttonStyle(.borderedProminent)
-                .font(.title)
-                .padding()
 
-                NavigationLink(destination: RollsHistoryView()) {
-                    Text("View Roll History")
+                    NavigationLink(destination: RollsHistoryView()) {
+                        Text("View Roll History")
+                    }
                 }
             }
         }
