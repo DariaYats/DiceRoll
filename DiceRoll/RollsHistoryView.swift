@@ -41,6 +41,19 @@ struct RollsHistoryView: View {
             modelContext.delete(rollHistory[index])
         }
     }
+
+    func deleteAll() {
+        do {
+            let fetchDescriptor = FetchDescriptor<DiceRoll>()
+            let allDiceRolls = try? modelContext.fetch(fetchDescriptor)
+            for diceRoll in allDiceRolls ?? []  {
+                modelContext.delete(diceRoll)
+            }
+            try modelContext.save()
+        } catch {
+            print("Failed to delete all objects: \(error)")
+        }
+    }
 }
 
 #Preview {
